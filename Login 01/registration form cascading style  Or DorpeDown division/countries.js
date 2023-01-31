@@ -1,10 +1,8 @@
 
-
-var country_arr = new Array("Afghanistan", "Albania", "Algeria", "American Samoa", "Angola", "Anguilla", "Antartica", "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Ashmore and Cartier Island", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei", "Bulgaria", "Burkina Faso", "Burma", "Burundi", "Cambodia");
+var country_arr = new Array("Afghanistan", "Albania", );
 
 var s_a = new Array();
-s_a[0]="";
-s_a[1]="Badakhshan|Badghis|Baghlan|Balkh|Bamian|Farah|Faryab|Ghazni|Ghowr|Helmand|Herat|Jowzjan|Kabol|Kandahar|Kapisa|Konar|Kondoz|Laghman|Lowgar|Nangarhar|Nimruz|Oruzgan|Paktia|Paktika|Parvan|Samangan|Sar-e Pol|Takhar|Vardak|Zabol";
+s_a[1]="Badakhshan|Badghis|Baghlan";
 
 
 function print_country(country_id){
@@ -28,3 +26,18 @@ function print_state(state_id, state_index){
 		option_str.options[option_str.length] = new Option(state_arr[i],state_arr[i]);
 	}
 }
+$(document).ready(function(){
+ 
+	// Initialize select2
+	$("#country").select2();
+	$("#state").select2();
+   
+	// Read selected option
+	$('#but_read').click(function(){
+		var username = $('#country option:selected').text();
+		var userid = $('#country').val();
+   
+		$('#result').html("id : " + userid + ", name : " + username);
+   
+	});
+   });

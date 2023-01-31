@@ -1,148 +1,73 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <!-- Font-Awesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- Main CSS -->
-    <link rel="stylesheet" href="css/style.css">
-
-
-
+<!DOCTYPE html>
+<html>
+<head>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
 
 <script>
-
-    // Dropdown option =============================================
-function ddlpopulate(ddl, arr) {
-    ddl.options.length = 0;
-
-    iteropt = document.createElement('option');
-    iteropt.innerHTML = iteropt.value = '';
-    ddl.appendChild(iteropt);
-
-    for (i=0; i<arr.length; i++) {
-        iteropt = document.createElement('option');
-        iteropt.innerHTML = iteropt.value = arr[i]; //.text
-        ddl.appendChild(iteropt);
-    }
-}
-
-function ddlcascade(upper, lower, ht) {
-  objUpper = document.getElementById(upper);
-  objLower = document.getElementById(lower);
-  if (objUpper.options.length == 0) {
-    ddlpopulate(objUpper, Object.keys(ht));
-  }
-  objUpper.onchange = function() {
-    ddlpopulate(objLower, ht[objUpper.value]);
-  }
-}
-
-
-//If using jQuery, use $(document).ready, or find and call other onload handlers
-window.onload = function() {
-  select = { 'nose' : ['N-X', 'N-L', 'N-M', 'N-S'], 'lips' : ['L-STD'], 'ear': ['E-L', 'E-S'] };
-  ddlcascade('country', 'city', select);
-}
+  //autocomplete script
+$(".autocomplete_txt").keyup(function(){
+    type = $(this).data('type');
+    if(type =='itemID' )autoTypeNo=0;
+    if(type =='item_name' )autoTypeNo=1;    
+    $(this).autocomplete({
+        source: function( request, response ) {
+            $.ajax({
+                url : 'ajax.php',
+                dataType: "json",
+                method: 'post',
+                data: {
+                   name_startsWith: request.term,
+                   type: type
+                },
+                 success: function( data ) {
+                     response( $.map( data, function( item ) {
+                        var code = item.split("|");
+                        return {
+                            label: code[autoTypeNo],
+                            value: code[autoTypeNo],
+                            data : item
+                        }
+                    }));
+                }
+            });
+        },
+        autoFocus: true,            
+        minLength: 0,
+        select: function( event, ui ) {
+            var names = ui.item.data.split("|");                        
+            id_arr = $(this).attr('id');
+            id = id_arr.split("_");
+            element_id = id[id.length-1];
+            $('#itemID_'+element_id).val(names[0]);
+            $('#item_name_'+element_id).val(names[1]);
+            /*$('#quantity_'+element_id).val(1);
+            $('#price_'+element_id).val(names[2]);
+            $('#total_'+element_id).val( 1*names[2] );*/
+            calculateTotal();
+        }               
+    });
+});
 </script>
 
 
 
 
 
+<tr>
+  <td><a id="remRow"><span class="icon icon-squared-cross"></span></a></td>
+  <td><input type="hidden" data-type="itemID" name="itemID[]" id="itemID" class="form-control autocomplete_txt" autocomplete="off">
+  <input type="text" data-type="item_name" name="item_name[]" id="item_name" class="form-control autocomplete_txt" autocomplete="off" placeholder="Item Name"></td>
+  <td><input type="text" name="item_sku[]" id="item_sku" class="form-control changesNo" autocomplete="off" onkeypress="return IsNumeric(event);" ondrop="return false;" onpaste="return false;" placeholder="SKU#"></td>
+  <td><input type="text" name="item_qty[]" id="item_qty" class="form-control changesNo" autocomplete="off" onkeypress="return IsNumeric(event);" ondrop="return false;" onpaste="return false;" placeholder="Qty"></td>
+  <td><input type="text" name="item_rate[]" id="item_rate" class="form-control changesNo" autocomplete="off" onkeypress="return IsNumeric(event);" ondrop="return false;" onpaste="return false;" placeholder="Cost"></td>
+  <td><input type="text" name="balance[]" id="balance" class="form-control totalLinePrice" autocomplete="off" onkeypress="return IsNumeric(event);" ondrop="return false;" onpaste="return false;" placeholder="Balance"></td>
+  </tr>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    <title> Registration Form Validation</title>
-  </head>
-  <body>
   
-    <div class="row justify-content-center">
-        <div class="col-md-12 col-lg-10">
-            <div class="wrap d-md-flex">
-                <div class="img" style="background-image: url(img/signup-img.jpg);"></div>
-                <div class="login-wrap p-4 p-md-5">
-              <div class="row d-flex">
-                    <h2>Registration Form</h2>
-                    <form class="register-form" name="Form" onsubmit="return validateForm()">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input class="form-control" type="text" name="name" id="name">
-                        <div class="error" id="nameErr"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input class="form-control" type="text" name="email" id="email">
-                        <div class="error" id="emailErr"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Mobile Number</label>
-                        <input class="form-control" type="text" name="mobile" maxlength="10" id="mobile">
-                        <div class="error" id="mobileErr"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Country</label>
-                        <select name="country" id="country">
-                        </select> 
-                        <div class="error" id="countryErr"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Country</label>
-                        <select name="country" id="city">
-                        </select> 
-                        <div class="error" id="countryErr"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <div class="form-inline" id="gender">
-                            <label><input type="radio" name="gender" value="male"> Male</label>
-                            <label><input type="radio" name="gender" value="female"> Female</label> 
-                        </div>
-                        <div class="error" id="genderErr"></div>
-                    </div>
-                        
-                    <div class="form-group">
-                        <input class="form-control" type="submit" value="Submit">
-                    </div>
-              </div>
-                <p class="text-center m-4">Not a member? <a data-toggle="tab" href="#signup"> Sign Up</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
 
-
-
-
-
-
-
-
-
-
-
-
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="js/main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>    
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    
-  </body>
+</body>
 </html>
